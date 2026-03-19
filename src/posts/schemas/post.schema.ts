@@ -35,6 +35,9 @@ export class Post {
   @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
   likes: User[];
 
+  @Prop({ default: 0 })
+  likesCount: number;
+
   @Prop({ type: [CommentSchema], default: [] })
   comments: Comment[];
 }

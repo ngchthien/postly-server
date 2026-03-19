@@ -6,7 +6,7 @@ import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 
 @Injectable()
 export class PostsService {
-  constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) {}
+  constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) { }
 
   async create(userId: string, createPostDto: CreatePostDto): Promise<PostDocument> {
     const createdPost = new this.postModel({ ...createPostDto, author: userId });
@@ -19,24 +19,11 @@ export class PostsService {
 
   async findTrending(): Promise<PostDocument[]> {
     // Trending logic: sort by number of likes
-    return this.postModel.aggregate([
-      {
-        $addFields: {
-          likesCount: { $size: "$likes" },
-          commentsCount: { $size: "$comments" }
-        }
-      },
-      { $sort: { likesCount: -1, commentsCount: -1, createdAt: -1 } },
-      { $limit: 10 },
-      // Since aggregate doesn't populate, we can either use $lookup or do a find with IDs
-    ]).exec().then(async (posts) => {
-        // Simple way to populate after aggregate
-        const ids = posts.map(p => p._id);
-        return this.postModel.find({ _id: { $in: ids } })
-          .populate('author', 'name email')
-          .sort({ likesCount: -1, createdAt: -1 })
-          .exec();
-    });
+    return this.postModel.find()
+      .populate('author', 'name email')
+      .sort({ likesCount: -1, createdAt: -1 })
+      .limit(10)
+      .exec();
   }
 
   async findOne(id: string): Promise<PostDocument> {
@@ -68,6 +55,9 @@ export class PostsService {
     } else {
       post.likes.splice(index, 1);
     }
+
+    // Update the likesCount field
+    post.likesCount = post.likes.length;
 
     return post.save();
   }
