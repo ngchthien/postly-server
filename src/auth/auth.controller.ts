@@ -9,13 +9,14 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() registerDto: RegisterDto) {
-    const { email, password } = registerDto;
-    if (!email || !password) {
-      throw new BadRequestException('Email and password are required');
+    const { email, name, password } = registerDto;
+    if (!email || !name || !password) {
+      throw new BadRequestException('Email, name and password are required');
     }
-    const user = await this.authService.register(email, password);
+    const user = await this.authService.register(email, name, password);
     return this.authService.login(user);
   }
+
 
   @Post('login')
   @HttpCode(HttpStatus.OK)

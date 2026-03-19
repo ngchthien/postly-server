@@ -11,7 +11,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(email: string, pass: string): Promise<UserDocument> {
+  async register(email: string, name: string, pass: string): Promise<UserDocument> {
     const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {
       throw new BadRequestException('Email already exists');
@@ -20,10 +20,12 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(pass, 10);
     const user = await this.usersService.create({
       email,
+      name,
       password: hashedPassword,
     });
     return user;
   }
+
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
@@ -41,8 +43,10 @@ export class AuthService {
       user: {
         id: user._id,
         email: user.email,
+        name: user.name,
         roles: user.roles,
       },
+
     };
   }
 }
