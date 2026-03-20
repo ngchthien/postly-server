@@ -16,3 +16,7 @@ export class UpdateProfileDto {
   name?: string;
   bio?: string;
 }
+
+export class RefreshTokenDto {
+  refresh_token: string;
+}

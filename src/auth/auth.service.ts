@@ -45,8 +45,10 @@ export class AuthService {
 
   async login(user: any) {
     const payload = { email: user.email, sub: user._id };
+    const refreshPayload = { sub: user._id, type: 'refresh' };
     return {
       access_token: this.jwtService.sign(payload),
+      refresh_token: this.jwtService.sign(refreshPayload, { expiresIn: '7d' }),
       user: {
         id: user._id,
         email: user.email,
@@ -55,6 +57,30 @@ export class AuthService {
         roles: user.roles,
       },
     };
+  }
+
+  async refreshToken(token: string) {
+    try {
+      const payload = this.jwtService.verify(token);
+      if (payload.type !== 'refresh') {
+        throw new UnauthorizedException('Invalid token type');
+      }
+
+      const user = await this.usersService.findById(payload.sub);
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      const newPayload = { email: user.email, sub: user._id };
+      const newRefreshPayload = { sub: user._id, type: 'refresh' };
+
+      return {
+        access_token: this.jwtService.sign(newPayload),
+        refresh_token: this.jwtService.sign(newRefreshPayload, { expiresIn: '7d' }),
+      };
+    } catch (e) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
   }
 
   async updateProfile(

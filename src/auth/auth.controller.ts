@@ -11,7 +11,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterDto, LoginDto, UpdateProfileDto } from './dto/auth.dto';
+import { RegisterDto, LoginDto, UpdateProfileDto, RefreshTokenDto } from './dto/auth.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
@@ -41,6 +41,15 @@ export class AuthController {
       throw new UnauthorizedException('Invalid credentials');
     }
     return this.authService.login(user);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
+    if (!refreshTokenDto.refresh_token) {
+      throw new BadRequestException('Refresh token is required');
+    }
+    return this.authService.refreshToken(refreshTokenDto.refresh_token);
   }
 
   @UseGuards(JwtAuthGuard)
