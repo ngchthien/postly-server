@@ -19,5 +19,18 @@ export class UsersService {
   async findById(id: string): Promise<UserDocument | null> {
     return this.userModel.findById(id).exec();
   }
-}
 
+  async updateProfile(
+    id: string,
+    name?: string,
+    bio?: string,
+  ): Promise<UserDocument | null> {
+    const updateData: any = {};
+    if (name !== undefined) updateData.name = name;
+    if (bio !== undefined) updateData.bio = bio;
+
+    return this.userModel
+      .findByIdAndUpdate(id, { $set: updateData }, { new: true })
+      .exec();
+  }
+}

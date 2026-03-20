@@ -14,9 +14,11 @@ export class User {
   @Prop({ required: true })
   password: string;
 
-
   @Prop()
   roles?: string[];
+
+  @Prop()
+  bio?: string;
 
   // You can add more fields like firstName, lastName, photo, etc.
 }

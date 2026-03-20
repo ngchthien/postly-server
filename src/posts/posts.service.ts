@@ -6,20 +6,31 @@ import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 
 @Injectable()
 export class PostsService {
-  constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) { }
+  constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) {}
 
-  async create(userId: string, createPostDto: CreatePostDto): Promise<PostDocument> {
-    const createdPost = new this.postModel({ ...createPostDto, author: userId });
+  async create(
+    userId: string,
+    createPostDto: CreatePostDto,
+  ): Promise<PostDocument> {
+    const createdPost = new this.postModel({
+      ...createPostDto,
+      author: userId,
+    });
     return createdPost.save();
   }
 
   async findAll(): Promise<PostDocument[]> {
-    return this.postModel.find().populate('author', 'name email').sort({ createdAt: -1 }).exec();
+    return this.postModel
+      .find()
+      .populate('author', 'name email')
+      .sort({ createdAt: -1 })
+      .exec();
   }
 
   async findTrending(): Promise<PostDocument[]> {
     // Trending logic: sort by number of likes
-    return this.postModel.find()
+    return this.postModel
+      .find()
       .populate('author', 'name email')
       .sort({ likesCount: -1, createdAt: -1 })
       .limit(10)
@@ -27,14 +38,22 @@ export class PostsService {
   }
 
   async findOne(id: string): Promise<PostDocument> {
-
-    const post = await this.postModel.findById(id).populate('author', 'name email').populate('comments.user', 'name').exec();
+    const post = await this.postModel
+      .findById(id)
+      .populate('author', 'name email')
+      .populate('comments.user', 'name')
+      .exec();
     if (!post) throw new NotFoundException('Post not found');
     return post;
   }
 
-  async update(id: string, updatePostDto: UpdatePostDto): Promise<PostDocument> {
-    const post = await this.postModel.findByIdAndUpdate(id, updatePostDto, { new: true }).exec();
+  async update(
+    id: string,
+    updatePostDto: UpdatePostDto,
+  ): Promise<PostDocument> {
+    const post = await this.postModel
+      .findByIdAndUpdate(id, updatePostDto, { new: true })
+      .exec();
     if (!post) throw new NotFoundException('Post not found');
     return post;
   }
@@ -62,7 +81,11 @@ export class PostsService {
     return post.save();
   }
 
-  async addComment(postId: string, userId: string, content: string): Promise<PostDocument> {
+  async addComment(
+    postId: string,
+    userId: string,
+    content: string,
+  ): Promise<PostDocument> {
     const post = await this.postModel.findById(postId).exec();
     if (!post) throw new NotFoundException('Post not found');
 

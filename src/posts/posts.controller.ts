@@ -1,14 +1,14 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Param, 
-  Delete, 
-  Put, 
-  UseGuards, 
-  Request, 
-  UnauthorizedException 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Put,
+  UseGuards,
+  Request,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto, UpdatePostDto, CommentDto } from './dto/post.dto';
@@ -40,10 +40,13 @@ export class PostsController {
     return this.postsService.findOne(id);
   }
 
-
   @UseGuards(JwtAuthGuard)
   @Put(':id')
-  async update(@Request() req: any, @Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+  async update(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() updatePostDto: UpdatePostDto,
+  ) {
     const post = await this.postsService.findOne(id);
     if (post.author['_id'].toString() !== req.user.userId) {
       throw new UnauthorizedException('You can only update your own posts');
@@ -69,7 +72,15 @@ export class PostsController {
 
   @UseGuards(JwtAuthGuard)
   @Post(':id/comment')
-  async addComment(@Request() req: any, @Param('id') id: string, @Body() commentDto: CommentDto) {
-    return this.postsService.addComment(id, req.user.userId, commentDto.content);
+  async addComment(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() commentDto: CommentDto,
+  ) {
+    return this.postsService.addComment(
+      id,
+      req.user.userId,
+      commentDto.content,
+    );
   }
 }

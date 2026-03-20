@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
@@ -11,7 +15,11 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(email: string, name: string, pass: string): Promise<UserDocument> {
+  async register(
+    email: string,
+    name: string,
+    pass: string,
+  ): Promise<UserDocument> {
     const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {
       throw new BadRequestException('Email already exists');
@@ -25,7 +33,6 @@ export class AuthService {
     });
     return user;
   }
-
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
@@ -44,9 +51,22 @@ export class AuthService {
         id: user._id,
         email: user.email,
         name: user.name,
+        bio: user.bio,
         roles: user.roles,
       },
-
     };
+  }
+
+  async updateProfile(
+    userId: string,
+    name?: string,
+    bio?: string,
+  ): Promise<any> {
+    const user = await this.usersService.updateProfile(userId, name, bio);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    const { password, ...result } = user.toObject();
+    return result;
   }
 }

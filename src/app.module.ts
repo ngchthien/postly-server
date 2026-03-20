@@ -24,7 +24,6 @@ import { PostsModule } from './posts/posts.module';
     PostsModule,
   ],
 
-
   controllers: [AppController],
   providers: [AppService],
 })
