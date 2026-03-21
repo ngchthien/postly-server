@@ -3,10 +3,16 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post, PostDocument } from './schemas/post.schema';
 import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
+import { UsersService } from '../users/users.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class PostsService {
-  constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) {}
+  constructor(
+    @InjectModel(Post.name) private postModel: Model<PostDocument>,
+    private usersService: UsersService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async create(
     userId: string,
@@ -95,6 +101,32 @@ export class PostsService {
       createdAt: new Date(),
     });
 
-    return post.save();
+    const updatedPost = await post.save();
+
+    // Send push notification to post author
+    try {
+      const authorId = post.author.toString();
+      // Don't send notification if you comment on your own post
+      if (authorId !== userId) {
+        const author = await this.usersService.findById(authorId);
+        const commenter = await this.usersService.findById(userId);
+
+        if (author?.fcmToken) {
+          await this.notificationsService.sendPushNotification(
+            author.fcmToken,
+            'New Comment',
+            `${commenter?.name || 'Someone'} commented on your post: "${content}"`,
+            {
+              postId,
+              commenterId: userId,
+            },
+          );
+        }
+      }
+    } catch (error) {
+      console.error('Failed to send comment push notification:', error);
+    }
+
+    return updatedPost;
   }
 }
