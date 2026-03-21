@@ -20,7 +20,8 @@ export class User {
   @Prop()
   bio?: string;
 
-  // You can add more fields like firstName, lastName, photo, etc.
+  @Prop()
+  fcmToken?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

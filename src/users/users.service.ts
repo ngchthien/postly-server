@@ -33,4 +33,17 @@ export class UsersService {
       .findByIdAndUpdate(id, { $set: updateData }, { new: true })
       .exec();
   }
+
+  async updateFcmToken(
+    id: string,
+    fcmToken: string,
+  ): Promise<UserDocument | null> {
+    return this.userModel
+      .findByIdAndUpdate(
+        id,
+        { $set: fcmToken ? { fcmToken } : { $unset: { fcmToken: '' } } },
+        { new: true },
+      )
+      .exec();
+  }
 }
