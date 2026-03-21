@@ -52,5 +52,9 @@ pids
 *.seed
 *.pid.lock
 
-# Diagnostic reports (https://nodejs.org/api/report.html)
+# Diagnostics reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Firebase Admin Key (Security)
+postly-8c78a-firebase-adminsdk-fbsvc-cda1cc160e.json
+serviceAccountKey.json

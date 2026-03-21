@@ -6,21 +6,31 @@ import * as path from 'path';
 export class NotificationsService implements OnModuleInit {
   onModuleInit() {
     try {
-      // Initialize Firebase Admin SDK
-      const serviceAccountPath = path.join(
-        process.cwd(),
-        'postly-8c78a-firebase-adminsdk-fbsvc-cda1cc160e.json',
-      );
-      
-      if (!admin.apps.length) {
+      if (admin.apps.length) return;
+
+      const firebaseConfig = process.env.FIREBASE_CONFIG;
+
+      if (firebaseConfig) {
+        // Option 1: Load from Environment Variable (Best for Render/Heroku)
+        const serviceAccount = JSON.parse(firebaseConfig);
+        admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount),
+        });
+        console.log('Firebase Admin SDK initialized from Environment Variable');
+      } else {
+        // Option 2: Fallback to local file (For Development)
+        const serviceAccountPath = path.join(
+          process.cwd(),
+          'postly-8c78a-firebase-adminsdk-fbsvc-cda1cc160e.json',
+        );
+
         admin.initializeApp({
           credential: admin.credential.cert(serviceAccountPath),
         });
-        console.log('Firebase Admin SDK initialized successfully');
+        console.log('Firebase Admin SDK initialized from Local File');
       }
     } catch (error) {
       console.error('Error initializing Firebase Admin SDK:', error.message);
-      // We don't throw here to avoid crashing the whole app if firebase is not configured
     }
   }
 
